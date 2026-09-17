@@ -6,10 +6,11 @@ struct HazardLoadResult {
     var sourceDescription: String
     var seededCount: Int
     var reportedCount: Int
+    var testCount: Int
     var expiredDropped: Int
     var problems: [String]
 
-    static let empty = HazardLoadResult(hazards: [], sourceDescription: "none", seededCount: 0, reportedCount: 0, expiredDropped: 0, problems: [])
+    static let empty = HazardLoadResult(hazards: [], sourceDescription: "none", seededCount: 0, reportedCount: 0, testCount: 0, expiredDropped: 0, problems: [])
 }
 
 /// Loads the hazard set for a ride. Order of preference for seeded hazards:
@@ -51,14 +52,17 @@ enum HazardStore {
             }
         }
 
-        let all = seeded + reported
+        let test = TestHazardStore.load()
+
+        let all = seeded + reported + test
         let active = all.filter { !$0.isExpired(at: now) }
         result.hazards = active
         result.seededCount = seeded.filter { !$0.isExpired(at: now) }.count
         result.reportedCount = reported.filter { !$0.isExpired(at: now) }.count
+        result.testCount = test.filter { !$0.isExpired(at: now) }.count
         result.expiredDropped = all.count - active.count
 
-        DiagnosticsLog.shared.info("Hazards loaded: \(active.count) active (\(result.seededCount) seeded from \(result.sourceDescription), \(result.reportedCount) reported), \(result.expiredDropped) expired dropped")
+        DiagnosticsLog.shared.info("Hazards loaded: \(active.count) active (\(result.seededCount) seeded from \(result.sourceDescription), \(result.reportedCount) reported, \(result.testCount) test), \(result.expiredDropped) expired dropped")
         return result
     }
 

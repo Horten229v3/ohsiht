@@ -40,6 +40,8 @@ enum HazardCategory: String, Codable, CaseIterable, Identifiable {
 enum HazardSource: String, Codable {
     case seeded
     case reported
+    /// Placed by hand at the rider's current position from the Home screen (test mode).
+    case manual
 }
 
 /// Single table of expiry defaults. These are guesses and will change; edit here only.

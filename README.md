@@ -172,6 +172,26 @@ Reinstalling this app does not count as a new identifier.
   again on the next launch. Nothing is lost.
 - **Share ride log** sends the JSON and GPX via AirDrop, Mail, Files, etc.
 
+### Test mode: place a hazard where you stand
+
+For checking the trigger timing on any road without editing a file:
+
+1. Ride to the spot, stop safely, take the phone out.
+2. Home → **Place a test hazard here**. Wait until GPS accuracy shows green (±30 m or better).
+3. Choose the direction:
+   - **Compass** — hold the phone with its top pointing the way a rider travels when
+     the hazard applies. The live heading is shown; **Flip 180°** makes it a hazard
+     for the opposite direction (useful to confirm it stays silent on this leg).
+   - **All directions** — no heading; a pure timing test.
+4. Tap a category. Done — the hazard is saved to `test_hazards.json` and counts on the
+   Home screen under *Placed by hand (test)*.
+5. Tap **Done**, **Start Ride**, ride at least 1 km away or turn around, and approach.
+   The alert and its timing land in the ride log like any other.
+
+The same sheet lists all test hazards with their distance from where you stand;
+swipe to delete one, or **Delete all test hazards**. They expire like their
+category (an *accident* test hazard is gone after 3 hours).
+
 ## Milestone 0: the background-location check
 
 Do this before any riding. It answers whether a free-account install keeps
@@ -259,7 +279,8 @@ Format:
 | `note` | no | Free text for you; appears in exports, never spoken or shown while riding. |
 
 Hazards created from your categorised reports live in `reported_hazards.json`
-next to it and are loaded as well. Settings can delete them.
+next to it, hand-placed test hazards in `test_hazards.json`; both are loaded as
+well. Settings deletes the former, the placement sheet the latter.
 
 **Placing hazards on hairpins.** The heading is compared with your direction of
 travel about 11 seconds *before* the hazard. On a hairpin apex the road points

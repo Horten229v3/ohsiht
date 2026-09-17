@@ -6,12 +6,14 @@ import CoreLocation
 /// happens here, before the ride.
 struct HomeView: View {
     @EnvironmentObject private var model: AppModel
+    @State private var showPlaceHazard = false
 
     var body: some View {
         NavigationStack {
             List {
                 startSection
                 hazardsSection
+                testHazardSection
                 locationSection
                 if !model.pendingReports.isEmpty {
                     pendingSection
@@ -34,6 +36,29 @@ struct HomeView: View {
                 }
             }
             .onAppear { model.refresh() }
+            .sheet(isPresented: $showPlaceHazard, onDismiss: { model.refresh() }) {
+                PlaceHazardView()
+                    .environmentObject(model)
+            }
+        }
+    }
+
+    private var testHazardSection: some View {
+        Section {
+            Button {
+                showPlaceHazard = true
+            } label: {
+                Label("Place a test hazard here", systemImage: "mappin.and.ellipse")
+            }
+            .disabled(!model.location.hasAnyAuthorization)
+            if model.hazardLoad.testCount > 0 {
+                LabeledContent("Test hazards active", value: "\(model.hazardLoad.testCount)")
+                    .font(.footnote)
+            }
+        } header: {
+            Text("Test mode")
+        } footer: {
+            Text("Stop, place a hazard at your position with a direction, then start a ride and approach it to see when it fires.")
         }
     }
 
@@ -72,6 +97,9 @@ struct HomeView: View {
             LabeledContent("Active hazards", value: "\(model.hazardLoad.hazards.count)")
             LabeledContent("Seeded", value: "\(model.hazardLoad.seededCount)")
             LabeledContent("From your reports", value: "\(model.hazardLoad.reportedCount)")
+            if model.hazardLoad.testCount > 0 {
+                LabeledContent("Placed by hand (test)", value: "\(model.hazardLoad.testCount)")
+            }
             LabeledContent("Source", value: model.hazardLoad.sourceDescription)
                 .font(.footnote)
             if model.hazardLoad.expiredDropped > 0 {

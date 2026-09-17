@@ -9,6 +9,10 @@ final class LocationService: NSObject, ObservableObject {
     @Published private(set) var accuracyAuthorization: CLAccuracyAuthorization
     @Published private(set) var latest: TrackPoint?
     @Published private(set) var isUpdating = false
+    /// Foreground-only fixes + compass for placing test hazards on the Home screen.
+    @Published private(set) var isPlacing = false
+    /// Degrees true (magnetic if true heading is unavailable). nil when the compass is off or unreliable.
+    @Published private(set) var compassHeading: Double?
 
     /// Called on the main actor for every accepted fix while updating.
     var onFix: (@MainActor (TrackPoint) -> Void)?
@@ -79,6 +83,31 @@ final class LocationService: NSObject, ObservableObject {
         manager.allowsBackgroundLocationUpdates = false
         isUpdating = false
         DiagnosticsLog.shared.info("Location updates stopped; stale fixes dropped: \(staleFixesDropped)")
+        if isPlacing { manager.startUpdatingLocation() }
+    }
+
+    /// Fixes and compass while the placement sheet is open. Foreground only; does not
+    /// touch the ride's background configuration.
+    func startPlacementUpdates() {
+        guard !isPlacing else { return }
+        isPlacing = true
+        if !isUpdating {
+            lastAcceptedTimestamp = nil
+            manager.startUpdatingLocation()
+        }
+        if CLLocationManager.headingAvailable() {
+            manager.headingFilter = 2
+            manager.headingOrientation = .portrait
+            manager.startUpdatingHeading()
+        }
+    }
+
+    func stopPlacementUpdates() {
+        guard isPlacing else { return }
+        isPlacing = false
+        manager.stopUpdatingHeading()
+        compassHeading = nil
+        if !isUpdating { manager.stopUpdatingLocation() }
     }
 
     private func handle(_ locations: [CLLocation]) {
@@ -130,6 +159,19 @@ extension LocationService: CLLocationManagerDelegate {
         } else {
             DispatchQueue.main.async { self.handle(locations) }
         }
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        // Negative accuracy means the compass needs calibration; treat as unavailable.
+        let value: Double? = newHeading.headingAccuracy < 0
+            ? nil
+            : (newHeading.trueHeading >= 0 ? newHeading.trueHeading : newHeading.magneticHeading)
+        DispatchQueue.main.async { self.compassHeading = value }
+    }
+
+    func locationManagerShouldDisplayHeadingCalibration(_ manager: CLLocationManager) -> Bool {
+        // Only ever relevant on the Home screen; never during a ride (no modal UI while riding).
+        return isPlacing && !isUpdating
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

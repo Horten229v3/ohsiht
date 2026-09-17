@@ -13,6 +13,9 @@ enum AppPaths {
     /// Hazards created from categorised rider reports.
     static var reportedHazards: URL { documents.appendingPathComponent("reported_hazards.json") }
 
+    /// Hazards placed by hand at the rider's position (test mode).
+    static var testHazards: URL { documents.appendingPathComponent("test_hazards.json") }
+
     /// Reports awaiting categorisation, across launches.
     static var pendingReports: URL { documents.appendingPathComponent("pending_reports.json") }
 
