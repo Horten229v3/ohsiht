@@ -48,7 +48,7 @@ final class DiagnosticsLog {
             try? fm.moveItem(at: url, to: rotated)
         }
         if !fm.fileExists(atPath: url.path) {
-            fm.createFile(atPath: url.path, contents: nil)
+            _ = fm.createFile(atPath: url.path, contents: nil)
         }
         if let handle = try? FileHandle(forWritingTo: url) {
             defer { try? handle.close() }

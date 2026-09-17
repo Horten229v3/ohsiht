@@ -28,8 +28,8 @@ final class RideWriter {
         try fm.createDirectory(at: folder, withIntermediateDirectories: true)
         let trackURL = folder.appendingPathComponent(RideStore.trackFile)
         let eventsURL = folder.appendingPathComponent(RideStore.eventsFile)
-        if !fm.fileExists(atPath: trackURL.path) { fm.createFile(atPath: trackURL.path, contents: nil) }
-        if !fm.fileExists(atPath: eventsURL.path) { fm.createFile(atPath: eventsURL.path, contents: nil) }
+        if !fm.fileExists(atPath: trackURL.path) { _ = fm.createFile(atPath: trackURL.path, contents: nil) }
+        if !fm.fileExists(atPath: eventsURL.path) { _ = fm.createFile(atPath: eventsURL.path, contents: nil) }
         trackHandle = try FileHandle(forWritingTo: trackURL)
         eventsHandle = try FileHandle(forWritingTo: eventsURL)
         _ = try trackHandle.seekToEnd()

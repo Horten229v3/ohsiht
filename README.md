@@ -213,7 +213,7 @@ and `.gpx`.
 | `hazards` | Every active hazard at ride start, with heading and expiry. |
 | `track` | One fix per second: `timestamp`, `lat`, `lon`, `speed` (m/s, −1 = unknown), `course` (degrees, −1 = unknown), `horizontalAccuracy` (m). |
 | `alerts` | Every alert: `triggeredAt` (decision), `playbackStartedAt` (sound started), `outputLatencySeconds` (extra Bluetooth delay the OS reports), rider position/speed/course, `distanceMeters`, `timeToHazardSeconds`, `triggerDistanceMeters`, `dropped` + `dropReason` if the queue overflow rule dropped it. |
-| `nearMisses` | Hazards that came within 500 m but did **not** alert — one record per approach with the closest distance and `rejectedBy`: the gate(s) that blocked it (`expired`, `alreadyFired`, `outOfRange`, `notAhead`, `headingMismatch`, `noCourse`). |
+| `nearMisses` | Hazards that were **within trigger distance but silent** — one record per approach with the closest distance and `rejectedBy`: the gate(s) that blocked it (`expired`, `notAhead`, `headingMismatch`, `noCourse`). `outcome` is `leftRange` (stayed silent), `fired` (alerted late — the record shows how close it got before the gate released it) or `rideEnded`. Passing a hazard meant for the other direction produces exactly one of these; that is the heading filter working. |
 | `reports` | Every tap: `raw` (where you were when you tapped), `offset` (where you were `reactionTimeSeconds` earlier — the recorded hazard position), category assigned afterwards, `status`. |
 | `diagnostics` | Errors and notable events during the ride. |
 | `summary` | The roadside numbers. `maxGapSeconds` is the Milestone 0 criterion. |
@@ -261,6 +261,15 @@ Format:
 Hazards created from your categorised reports live in `reported_hazards.json`
 next to it and are loaded as well. Settings can delete them.
 
+**Placing hazards on hairpins.** The heading is compared with your direction of
+travel about 11 seconds *before* the hazard. On a hairpin apex the road points
+somewhere else entirely at that moment, so a hazard placed right on the apex
+alerts late (or, with a wide tolerance, in both directions). Place the hazard on
+the straight or gentle bend leading into the corner and give it the heading of
+that approach. The template does this; simulating a ride over it gives 19 alerts
+in the right directions, plus two "fired late" near-miss records on the twistiest
+approaches, which is what to expect on a real pass.
+
 ## Settings
 
 Four constants, editable without rebuilding, all recorded in every ride log:
@@ -277,8 +286,7 @@ them. Change **one** thing between rides on the **same** road.
 
 Fixed for this build but also logged: ahead-cone ±45°, re-arm after 1 km,
 speed smoothed over 5 fixes, 2 s silence between alerts, at most 3 queued
-(more → only the nearest plays, the rest are logged as dropped), near-miss
-radius 500 m.
+(more → only the nearest plays, the rest are logged as dropped).
 
 ## Audio
 

@@ -32,8 +32,8 @@ struct AlertEvent: Codable, Identifiable, Equatable {
     }
 }
 
-/// A hazard that came within the near-miss radius but did not fire. One record per
-/// approach ("encounter"), closed when the rider leaves the radius or the hazard fires.
+/// A hazard that was within trigger distance but did not fire. One record per
+/// approach ("encounter"), closed when the hazard leaves range or fires after all.
 struct NearMissEvent: Codable, Identifiable, Equatable {
     var id: UUID
     var hazardId: UUID
@@ -49,11 +49,11 @@ struct NearMissEvent: Codable, Identifiable, Equatable {
     var triggerDistanceAtClosest: Double
     /// Gates that rejected the hazard at the moment of closest approach.
     var rejectedBy: [Gate]
-    /// How the encounter ended: left the radius, the hazard fired after all, or ride ended.
+    /// How the encounter ended: left trigger range, the hazard fired after all, or ride ended.
     var outcome: Outcome
 
     enum Outcome: String, Codable {
-        case leftRadius
+        case leftRange
         case fired
         case rideEnded
     }

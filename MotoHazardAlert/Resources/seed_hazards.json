@@ -45,11 +45,11 @@
       "note": "km 2.15 · westbound only: frost heave before the hairpin"
     },
     {
-      "lat": 47.225246,
-      "lon": 10.972214,
-      "heading": 109,
+      "lat": 47.225434,
+      "lon": 10.971766,
+      "heading": 118,
       "category": "gravel",
-      "note": "km 2.5 · hairpin exit"
+      "note": "km 2.46 · hairpin exit"
     },
     {
       "lat": 47.225176,
@@ -74,18 +74,18 @@
       "note": "km 3.55 · broken edge on the right"
     },
     {
-      "lat": 47.219384,
-      "lon": 10.985489,
-      "heading": 227,
+      "lat": 47.219058,
+      "lon": 10.985877,
+      "heading": 97,
       "category": "accident",
-      "note": "km 3.9 · ACCIDENT category: expires 3 h after the app loads it"
+      "note": "km 4.02 · ACCIDENT category: expires 3 h after the app loads it"
     },
     {
-      "lat": 47.219029,
-      "lon": 10.98871,
-      "heading": 315,
+      "lat": 47.218335,
+      "lon": 10.988921,
+      "heading": 333,
       "category": "gravel",
-      "note": "km 4.25 · westbound only: hairpin exit downhill"
+      "note": "km 4.33 · westbound only: hairpin exit downhill"
     },
     {
       "lat": 47.217219,
@@ -102,11 +102,11 @@
       "note": "km 4.95 · ripples in braking zone"
     },
     {
-      "lat": 47.213942,
-      "lon": 10.998323,
-      "heading": 15,
+      "lat": 47.214502,
+      "lon": 10.999578,
+      "heading": 127,
       "category": "gravel",
-      "note": "km 5.3 · last hairpin before the plateau"
+      "note": "km 5.5 · last hairpin before the plateau"
     },
     {
       "lat": 47.213575,
@@ -123,11 +123,11 @@
       "note": "km 6.0 · expansion joint"
     },
     {
-      "lat": 47.210409,
-      "lon": 11.007958,
-      "heading": 47,
+      "lat": 47.210354,
+      "lon": 11.006961,
+      "heading": 98,
       "category": "gravel",
-      "note": "km 6.35 · approach to Kühtai village"
+      "note": "km 6.27 · approach to Kühtai village"
     }
   ]
 }

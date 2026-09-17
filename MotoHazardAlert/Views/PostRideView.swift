@@ -72,7 +72,7 @@ struct PostRideView: View {
             row("Distance", Format.meters(s.distanceMeters))
             row("GPS fixes", "\(s.fixCount)")
             row("Longest GPS gap", Format.seconds(s.maxGapSeconds))
-                .foregroundStyle(s.maxGapSeconds > 5 ? .orange : .primary)
+                .foregroundStyle(s.maxGapSeconds > 5 ? Color.orange : Color.primary)
             if s.gapsOver5s > 0 {
                 row("Gaps over 5 s", "\(s.gapsOver5s)")
                     .foregroundStyle(.orange)

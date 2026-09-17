@@ -13,11 +13,13 @@ final class LocationService: NSObject, ObservableObject {
     /// Called on the main actor for every accepted fix while updating.
     var onFix: (@MainActor (TrackPoint) -> Void)?
 
-    private let manager = CLLocationManager()
+    private let manager: CLLocationManager
     private var lastAcceptedTimestamp: Date?
     private var staleFixesDropped = 0
 
     override init() {
+        let manager = CLLocationManager()
+        self.manager = manager
         authorizationStatus = manager.authorizationStatus
         accuracyAuthorization = manager.accuracyAuthorization
         super.init()

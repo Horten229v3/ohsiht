@@ -220,7 +220,7 @@ struct DiagnosticsTailView: View {
                 ForEach(Array(lines.enumerated()), id: \.offset) { _, line in
                     Text(line)
                         .font(.system(.caption2, design: .monospaced))
-                        .foregroundStyle(line.contains("[ERROR]") ? .red : (line.contains("[WARNING]") ? .orange : .primary))
+                        .foregroundStyle(lineColor(line))
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
@@ -228,5 +228,11 @@ struct DiagnosticsTailView: View {
         }
         .navigationTitle("Diagnostics")
         .onAppear { lines = DiagnosticsLog.shared.tail(lines: 200) }
+    }
+
+    private func lineColor(_ line: String) -> Color {
+        if line.contains("[ERROR]") { return .red }
+        if line.contains("[WARNING]") { return .orange }
+        return .primary
     }
 }

@@ -27,8 +27,6 @@ struct TunableSettings: Codable, Equatable {
     var alertGapSeconds: Double = 2
     /// If more than this many alerts are queued, play the nearest and drop the rest.
     var maxQueuedAlerts: Int = 3
-    /// Hazards closer than this that did not fire are logged as near-misses.
-    var nearMissRadiusMeters: Double = 500
 
     static let `default` = TunableSettings()
 

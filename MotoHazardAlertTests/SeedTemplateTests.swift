@@ -8,8 +8,13 @@ import XCTest
 
 /// Validates the bundled template so a broken seed never ships silently.
 final class SeedTemplateTests: XCTestCase {
+    /// In Xcode the host app bundle has the file (works on a real device too);
+    /// under SwiftPM there is no app bundle, so fall back to the source tree.
     private var templateURL: URL {
-        URL(fileURLWithPath: #filePath)
+        if let bundled = Bundle.main.url(forResource: "seed_hazards", withExtension: "json") {
+            return bundled
+        }
+        return URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .appendingPathComponent("MotoHazardAlert/Resources/seed_hazards.json")

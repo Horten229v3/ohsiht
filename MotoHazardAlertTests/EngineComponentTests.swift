@@ -182,59 +182,89 @@ final class ReactionOffsetTests: XCTestCase {
 }
 
 final class NearMissTrackerTests: XCTestCase {
-    func testOneRecordPerEncounterWithClosestApproach() {
+    /// Drive an eastbound rider at 20 m/s past `hazard`, feeding real verdicts.
+    private func drive(past hazard: Hazard, seconds: Int, fired: Set<UUID> = []) -> (closed: [NearMissEvent], tracker: NearMissTracker) {
         var tracker = NearMissTracker()
         let engine = TriggerEngine()
-        let rider0 = Fixture.rider()
-        // Hazard for westbound riders 300 m ahead of an eastbound rider: heading mismatch on approach.
-        let h = Fixture.hazard(from: rider0, bearing: 90, distance: 300, heading: 270)
-
         var closed: [NearMissEvent] = []
-        // 60 fixes × 20 m: enters the 500 m radius at once, passes the hazard, leaves the radius ~880 m past it.
-        for i in 0..<60 {
-            let d = Geo.destination(lat: rider0.lat, lon: rider0.lon, bearingDegrees: 90, distanceMeters: 20 * Double(i))
+        for i in 0..<seconds {
+            let d = Geo.destination(lat: Fixture.baseLat, lon: Fixture.baseLon, bearingDegrees: 90, distanceMeters: 20 * Double(i))
             let r = Fixture.rider(lat: d.lat, lon: d.lon, time: Fixture.now.addingTimeInterval(Double(i)))
-            let v = engine.evaluate(rider: r, smoothedSpeed: 20, hazard: h, alreadyFired: [], now: r.timestamp)
-            if let e = tracker.observe(hazard: h, verdict: v, rider: r, smoothedSpeed: 20, now: r.timestamp, radiusMeters: 500) {
+            let v = engine.evaluate(rider: r, smoothedSpeed: 20, hazard: hazard, alreadyFired: fired, now: r.timestamp)
+            if let e = tracker.observe(hazard: hazard, verdict: v, rider: r, smoothedSpeed: 20, now: r.timestamp) {
                 closed.append(e)
             }
         }
+        return (closed, tracker)
+    }
+
+    func testOppositeDirectionHazardIsOneNearMissWithClosestApproach() {
+        // Hazard for westbound riders 300 m ahead of an eastbound rider. It enters trigger
+        // range (220 m) silent, is passed, and leaves range behind the rider.
+        let h = Fixture.hazard(from: Fixture.rider(), bearing: 90, distance: 300, heading: 270)
+        let (closed, tracker) = drive(past: h, seconds: 40)
         XCTAssertEqual(closed.count, 1)
         guard let e = closed.first else { return }
-        XCTAssertEqual(e.outcome, .leftRadius)
+        XCTAssertEqual(e.outcome, .leftRange)
         XCTAssertLessThan(e.closestDistanceMeters, 1)
         XCTAssertTrue(e.rejectedBy.contains(.headingMismatch))
         XCTAssertNotNil(e.exitedAt)
         XCTAssertEqual(tracker.activeCount, 0)
     }
 
-    func testAlreadyFiredOnlyIsNotANearMiss() {
+    func testNormalLifecycleIsNotANearMiss() {
+        // Same-direction hazard: out of range → fires → already fired behind. Nothing to log.
+        let h = Fixture.hazard(from: Fixture.rider(), bearing: 90, distance: 300, heading: 90)
         var tracker = NearMissTracker()
-        let rider = Fixture.rider()
-        let h = Fixture.hazard(from: rider, bearing: 90, distance: 100)
-        let v = Verdict.rejected(gates: [.alreadyFired], distanceMeters: 100, triggerDistanceMeters: 220)
-        XCTAssertNil(tracker.observe(hazard: h, verdict: v, rider: rider, smoothedSpeed: 20, now: Fixture.now, radiusMeters: 500))
+        let engine = TriggerEngine()
+        var fired = FiredHazardTracker()
+        var closed: [NearMissEvent] = []
+        for i in 0..<40 {
+            let d = Geo.destination(lat: Fixture.baseLat, lon: Fixture.baseLon, bearingDegrees: 90, distanceMeters: 20 * Double(i))
+            let r = Fixture.rider(lat: d.lat, lon: d.lon, time: Fixture.now.addingTimeInterval(Double(i)))
+            let v = engine.evaluate(rider: r, smoothedSpeed: 20, hazard: h, alreadyFired: fired.firedIDs, now: r.timestamp)
+            if v.fires { fired.markFired(h, at: r.timestamp) }
+            if let e = tracker.observe(hazard: h, verdict: v, rider: r, smoothedSpeed: 20, now: r.timestamp) { closed.append(e) }
+        }
+        XCTAssertTrue(closed.isEmpty, "got \(closed)")
         XCTAssertEqual(tracker.activeCount, 0)
     }
 
-    func testFiringClosesOpenEncounterAsFired() {
+    func testOutOfRangeRejectionIsNotANearMiss() {
         var tracker = NearMissTracker()
         let rider = Fixture.rider()
         let h = Fixture.hazard(from: rider, bearing: 90, distance: 400)
-        let far = Verdict.rejected(gates: [.outOfRange], distanceMeters: 400, triggerDistanceMeters: 220)
-        XCTAssertNil(tracker.observe(hazard: h, verdict: far, rider: rider, smoothedSpeed: 20, now: Fixture.now, radiusMeters: 500))
+        let far = Verdict.rejected(gates: [.outOfRange, .headingMismatch], distanceMeters: 400, triggerDistanceMeters: 220)
+        XCTAssertNil(tracker.observe(hazard: h, verdict: far, rider: rider, smoothedSpeed: 20, now: Fixture.now))
+        XCTAssertEqual(tracker.activeCount, 0)
+    }
+
+    func testExpiredHazardInRangeIsANearMiss() {
+        let h = Fixture.hazard(from: Fixture.rider(), bearing: 90, distance: 300, heading: 90, expiresAt: Fixture.now.addingTimeInterval(-1))
+        let (closed, _) = drive(past: h, seconds: 40)
+        XCTAssertEqual(closed.count, 1)
+        XCTAssertEqual(closed.first?.rejectedBy.first, .expired)
+    }
+
+    func testLateFireClosesEncounterAsFired() {
+        var tracker = NearMissTracker()
+        let rider = Fixture.rider()
+        let h = Fixture.hazard(from: rider, bearing: 90, distance: 200)
+        let blocked = Verdict.rejected(gates: [.headingMismatch], distanceMeters: 200, triggerDistanceMeters: 220)
+        XCTAssertNil(tracker.observe(hazard: h, verdict: blocked, rider: rider, smoothedSpeed: 20, now: Fixture.now))
         XCTAssertEqual(tracker.activeCount, 1)
-        let fire = Verdict.fire(distanceMeters: 210, triggerDistanceMeters: 220)
-        let e = tracker.observe(hazard: h, verdict: fire, rider: rider, smoothedSpeed: 20, now: Fixture.now.addingTimeInterval(10), radiusMeters: 500)
+        let fire = Verdict.fire(distanceMeters: 60, triggerDistanceMeters: 220)
+        let e = tracker.observe(hazard: h, verdict: fire, rider: rider, smoothedSpeed: 20, now: Fixture.now.addingTimeInterval(7))
         XCTAssertEqual(e?.outcome, .fired)
+        XCTAssertEqual(e?.closestDistanceMeters, 200, "closest silent distance, before it fired")
         XCTAssertEqual(tracker.activeCount, 0)
     }
 
     func testDrainClosesEverything() {
         var tracker = NearMissTracker()
         let rider = Fixture.rider()
-        let h = Fixture.hazard(from: rider, bearing: 90, distance: 400)
-        _ = tracker.observe(hazard: h, verdict: .rejected(gates: [.outOfRange], distanceMeters: 400, triggerDistanceMeters: 220), rider: rider, smoothedSpeed: 20, now: Fixture.now, radiusMeters: 500)
+        let h = Fixture.hazard(from: rider, bearing: 90, distance: 100)
+        _ = tracker.observe(hazard: h, verdict: .rejected(gates: [.headingMismatch], distanceMeters: 100, triggerDistanceMeters: 220), rider: rider, smoothedSpeed: 20, now: Fixture.now)
         let drained = tracker.drain(at: Fixture.now.addingTimeInterval(5))
         XCTAssertEqual(drained.count, 1)
         XCTAssertEqual(drained[0].outcome, .rideEnded)

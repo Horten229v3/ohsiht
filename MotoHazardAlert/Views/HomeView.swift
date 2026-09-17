@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import CoreLocation
 
 /// Planning screen. Everything that needs reading or tapping small things
 /// happens here, before the ride.

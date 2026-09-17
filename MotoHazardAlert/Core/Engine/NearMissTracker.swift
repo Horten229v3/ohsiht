@@ -1,8 +1,12 @@
 import Foundation
 
-/// Tracks hazards that are close but not firing, one record per approach.
-/// Logging every 1 Hz rejection would bury the signal; logging nothing would hide
-/// the false-negative side of the timing question.
+/// Tracks hazards that are **in range but silent**: closer than the trigger
+/// distance, yet rejected by a gate other than "already fired". One record per
+/// approach ("encounter"), closed when the hazard leaves range, fires after all,
+/// or the ride ends.
+///
+/// The normal lifecycle — approaching while out of range, then passing an alerted
+/// hazard — is deliberately not logged; it would bury the false-negative signal.
 struct NearMissTracker: Equatable {
     private var active: [UUID: NearMissEvent] = [:]
 
@@ -15,13 +19,11 @@ struct NearMissTracker: Equatable {
         verdict: Verdict,
         rider: TrackPoint,
         smoothedSpeed: Double,
-        now: Date,
-        radiusMeters: Double
+        now: Date
     ) -> NearMissEvent? {
-        let distance = verdict.distanceMeters
-
         if verdict.fires {
-            // The hazard fired after all: close any open encounter as such.
+            // The hazard fired after all (e.g. the heading matched once the rider
+            // rounded a corner). The record shows how long the gate held it back.
             if var open = active.removeValue(forKey: hazard.id) {
                 open.exitedAt = now
                 open.outcome = .fired
@@ -31,11 +33,11 @@ struct NearMissTracker: Equatable {
         }
 
         let gates = verdict.rejectedGates
-        // "Already fired and nothing else wrong" is the normal state right after an
-        // alert, not a near-miss.
-        let onlyAlreadyFired = gates == [.alreadyFired]
+        let distance = verdict.distanceMeters
+        let inRange = !gates.contains(.outOfRange)
+        let silentForAReason = !gates.contains(.alreadyFired)
 
-        if distance <= radiusMeters, !onlyAlreadyFired {
+        if inRange, silentForAReason {
             if var open = active[hazard.id] {
                 if distance < open.closestDistanceMeters {
                     open.closestDistanceMeters = distance
@@ -63,7 +65,7 @@ struct NearMissTracker: Equatable {
                     riderCourseAtClosest: rider.course,
                     triggerDistanceAtClosest: verdict.triggerDistanceMeters,
                     rejectedBy: gates,
-                    outcome: .leftRadius
+                    outcome: .leftRange
                 )
             }
             return nil
@@ -71,7 +73,7 @@ struct NearMissTracker: Equatable {
 
         if var open = active.removeValue(forKey: hazard.id) {
             open.exitedAt = now
-            open.outcome = .leftRadius
+            open.outcome = .leftRange
             return open
         }
         return nil

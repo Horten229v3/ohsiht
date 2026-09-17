@@ -154,7 +154,7 @@ final class RideSession: ObservableObject {
         for hazard in hazards {
             let verdict = engine.evaluate(rider: point, smoothedSpeed: speed, hazard: hazard, alreadyFired: fired.firedIDs, now: now)
 
-            if let closed = nearMisses.observe(hazard: hazard, verdict: verdict, rider: point, smoothedSpeed: speed, now: now, radiusMeters: settings.nearMissRadiusMeters) {
+            if let closed = nearMisses.observe(hazard: hazard, verdict: verdict, rider: point, smoothedSpeed: speed, now: now) {
                 record(.nearMiss(closed))
             }
 
@@ -242,7 +242,7 @@ final class RideSession: ObservableObject {
         audio.playReportConfirm()
         UINotificationFeedbackGenerator().notificationOccurred(.success)
 
-        let raw = lastRider.map(Position.init)
+        let raw = lastRider.map { Position($0) }
         let offset = ReactionOffset.position(in: track, tapTime: now, reactionTimeSeconds: settings.reactionTimeSeconds)
         let report = Report(
             id: UUID(),
