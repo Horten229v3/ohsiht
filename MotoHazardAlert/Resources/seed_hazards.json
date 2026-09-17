@@ -1,0 +1,133 @@
+{
+  "name": "TEMPLATE — Kühtai west ramp (L237, Ochsengarten → Kühtai)",
+  "description": "Placeholder seed for a first test ride. 18 hazards along the 6.8 km climb from Ochsengarten (west) up to Kühtai, placed on the real road centre line from OpenStreetMap (ODbL). Headings point uphill (eastbound) unless the note says westbound; one hazard is omnidirectional (heading null). Replace this file with your own: copy it to Files › On My iPhone › Hazard POC › seed_hazards.json. Fields: lat, lon, heading (0-359 or null), category (gravel|cattle|accident|surface|other), optional headingTolerance, createdAt, expiresAt, note. Without createdAt a hazard is treated as created when the app loads it, so it never expires between launches — except accident, which expires 3 hours after load by design.",
+  "hazards": [
+    {
+      "lat": 47.229473,
+      "lon": 10.946632,
+      "heading": 68,
+      "category": "gravel",
+      "note": "km 0.4 · first left after Ochsengarten"
+    },
+    {
+      "lat": 47.229821,
+      "lon": 10.951176,
+      "heading": 96,
+      "category": "surface",
+      "note": "km 0.75 · patched tarmac"
+    },
+    {
+      "lat": 47.229314,
+      "lon": 10.955627,
+      "heading": null,
+      "category": "cattle",
+      "note": "km 1.1 · open pasture both sides, cattle grid"
+    },
+    {
+      "lat": 47.228611,
+      "lon": 10.959844,
+      "heading": 148,
+      "category": "gravel",
+      "note": "km 1.45 · hairpin exit, gravel dragged out of the inside"
+    },
+    {
+      "lat": 47.227599,
+      "lon": 10.963827,
+      "heading": 108,
+      "category": "other",
+      "note": "km 1.8 · water across road after rain"
+    },
+    {
+      "lat": 47.226437,
+      "lon": 10.9681,
+      "heading": 295,
+      "category": "surface",
+      "note": "km 2.15 · westbound only: frost heave before the hairpin"
+    },
+    {
+      "lat": 47.225246,
+      "lon": 10.972214,
+      "heading": 109,
+      "category": "gravel",
+      "note": "km 2.5 · hairpin exit"
+    },
+    {
+      "lat": 47.225176,
+      "lon": 10.976648,
+      "heading": 98,
+      "category": "cattle",
+      "note": "km 2.85 · farm track joins from the right"
+    },
+    {
+      "lat": 47.223844,
+      "lon": 10.98066,
+      "heading": 129,
+      "headingTolerance": 30,
+      "category": "gravel",
+      "note": "km 3.2 · straight, tight tolerance example (±30)"
+    },
+    {
+      "lat": 47.221763,
+      "lon": 10.984083,
+      "heading": 129,
+      "category": "surface",
+      "note": "km 3.55 · broken edge on the right"
+    },
+    {
+      "lat": 47.219384,
+      "lon": 10.985489,
+      "heading": 227,
+      "category": "accident",
+      "note": "km 3.9 · ACCIDENT category: expires 3 h after the app loads it"
+    },
+    {
+      "lat": 47.219029,
+      "lon": 10.98871,
+      "heading": 315,
+      "category": "gravel",
+      "note": "km 4.25 · westbound only: hairpin exit downhill"
+    },
+    {
+      "lat": 47.217219,
+      "lon": 10.991826,
+      "heading": 97,
+      "category": "other",
+      "note": "km 4.6 · cyclists group ride"
+    },
+    {
+      "lat": 47.21522,
+      "lon": 10.9949,
+      "heading": 127,
+      "category": "surface",
+      "note": "km 4.95 · ripples in braking zone"
+    },
+    {
+      "lat": 47.213942,
+      "lon": 10.998323,
+      "heading": 15,
+      "category": "gravel",
+      "note": "km 5.3 · last hairpin before the plateau"
+    },
+    {
+      "lat": 47.213575,
+      "lon": 11.001021,
+      "heading": 309,
+      "category": "cattle",
+      "note": "km 5.65 · westbound only: cattle on the plateau side"
+    },
+    {
+      "lat": 47.211721,
+      "lon": 11.004554,
+      "heading": 164,
+      "category": "surface",
+      "note": "km 6.0 · expansion joint"
+    },
+    {
+      "lat": 47.210409,
+      "lon": 11.007958,
+      "heading": 47,
+      "category": "gravel",
+      "note": "km 6.35 · approach to Kühtai village"
+    }
+  ]
+}
