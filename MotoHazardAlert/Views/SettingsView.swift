@@ -126,7 +126,7 @@ struct SettingsView: View {
             if let r = testResult {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(r.succeeded ? "Played." : "Playback failed — see diagnostics.")
-                        .foregroundStyle(r.succeeded ? .primary : .red)
+                        .foregroundStyle(r.succeeded ? Color.primary : Color.red)
                     Text("play() call: \(r.playCallMilliseconds) ms · output latency: \(r.outputLatencyMilliseconds) ms")
                     Text("Output: \(r.route)")
                 }
@@ -231,8 +231,8 @@ struct DiagnosticsTailView: View {
     }
 
     private func lineColor(_ line: String) -> Color {
-        if line.contains("[ERROR]") { return .red }
-        if line.contains("[WARNING]") { return .orange }
-        return .primary
+        if line.contains("[ERROR]") { return Color.red }
+        if line.contains("[WARNING]") { return Color.orange }
+        return Color.primary
     }
 }
