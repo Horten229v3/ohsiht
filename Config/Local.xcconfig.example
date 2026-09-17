@@ -1,0 +1,6 @@
+// Copy this file to Config/Local.xcconfig (same folder) and fill in your team.
+//
+// Find your Team ID: Xcode > Settings > Accounts > select your Apple ID >
+// the "Personal Team" row shows it, or it appears in the Signing & Capabilities
+// tab after you select the team once.
+DEVELOPMENT_TEAM = ABCDE12345

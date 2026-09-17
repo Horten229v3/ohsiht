@@ -1,0 +1,13 @@
+// Shared build settings for the Moto Hazard Alert POC.
+//
+// The bundle identifier is deliberately a stable reverse-DNS string the owner
+// can keep. Changing it later means iOS treats the app as a different app
+// (settings and logs on the phone would not carry over).
+PRODUCT_BUNDLE_IDENTIFIER = at.picaro.hazardpoc
+MARKETING_VERSION = 0.1.0
+CURRENT_PROJECT_VERSION = 1
+
+// Per-machine settings (signing team) live in Local.xcconfig, which is not
+// committed. Copy Local.xcconfig.example to Local.xcconfig and fill it in, or
+// simply pick your team in Xcode under Signing & Capabilities.
+#include? "Local.xcconfig"

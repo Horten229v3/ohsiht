@@ -1,0 +1,20 @@
+# Xcode
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+DerivedData/
+build/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager (Linux test harness for the pure core)
+.build/
+.swiftpm/
+Package.resolved
+
+# Per-machine signing config (see README, "First-time setup")
+Config/Local.xcconfig
+
+# OS
+.DS_Store
