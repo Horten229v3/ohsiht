@@ -22,7 +22,15 @@ enum AppPaths {
     static var ridesDirectory: URL { documents.appendingPathComponent("rides", isDirectory: true) }
 
     static var bundledSeed: URL? {
-        Bundle.main.url(forResource: "seed_hazards", withExtension: "json")
+        bundledResource("seed_hazards", extension: "json", subdirectory: "Resources")
+    }
+
+    /// Synced folders normally copy resources flat into the bundle; fall back to the
+    /// source subdirectory in case the folder structure was preserved.
+    static func bundledResource(_ name: String, extension ext: String, subdirectory: String) -> URL? {
+        Bundle.main.url(forResource: name, withExtension: ext)
+            ?? Bundle.main.url(forResource: name, withExtension: ext, subdirectory: subdirectory)
+            ?? Bundle.main.url(forResource: name, withExtension: ext, subdirectory: "Resources/\(subdirectory)")
     }
 
     static func ensureDirectories() {

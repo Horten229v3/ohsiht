@@ -106,7 +106,7 @@ final class AudioService: NSObject {
 
     private func preload() {
         for name in Clip.all {
-            guard let url = Bundle.main.url(forResource: name, withExtension: "wav") else {
+            guard let url = AppPaths.bundledResource(name, extension: "wav", subdirectory: "Audio") else {
                 DiagnosticsLog.shared.error("Bundled clip not found: \(name).wav")
                 continue
             }
